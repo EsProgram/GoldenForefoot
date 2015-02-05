@@ -1,15 +1,23 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
+using UnityEngine;
 
-public class CharactorBase : MonoBehaviour {
+namespace Es.Charactor
+{
+  /// <summary>
+  /// 全てのキャラクターの基本となるクラス
+  /// </summary>
+  public abstract class CharactorBase : MonoBehaviour
+  {
+    /**************************************************
+     * キャラクターステータス
+     **************************************************/
+    [SerializeField]
+    protected int hp;
+    [SerializeField]
+    protected float moveSpeed;
 
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+    /**************************************************
+     * クラスフィールド
+     **************************************************/
+  }
 }
