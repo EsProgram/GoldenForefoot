@@ -5,7 +5,6 @@ public class MouseCursor : MonoBehaviour
 {
   private void Start()
   {
-    //Screen.lockCursor = true;
     Screen.showCursor = false;
   }
 
