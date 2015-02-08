@@ -71,7 +71,6 @@ namespace Es.Charactor
     protected virtual void Damaged()
     {
       --hp;
-      Debug.Log(name + " 残りHP:" + hp);
     }
   }
 }

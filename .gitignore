@@ -213,3 +213,12 @@ ModelManifest.xml
 # Unity3D Generated File On Crash Reports
 sysinfo.txt
 /Assets/Animations
+/Assets/PhysicsMaterials
+/Assets/PhysicsMaterials/Wall.physicsMaterial2D
+/Assets/Prefabs/Effect
+/Assets/Prefabs/Effect/Expr.prefab
+/Assets/Sprites
+/Assets/Sprites/ETC
+/Assets/Sprites/ETC/cursor.png
+/Assets/Sprites/Player
+/Assets/Sprites/Player/arrow.png

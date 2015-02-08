@@ -1,6 +1,4 @@
-﻿#define DEBUG
-
-using Es.Charactor;
+﻿using Es.Charactor;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -31,7 +29,11 @@ namespace Es.Charactor
     [SerializeField]
     private PlayerState state = PlayerState.Play;
     [SerializeField]
-    public Transform attackOrigin;
+    private Transform attackOrigin = default(Transform);
+    [SerializeField]
+    private Transform arrowOrigin = default(Transform);
+    [SerializeField]
+    private Transform dirHelper = default(Transform);
     [SerializeField, Range(0, 999)]
     private float attackPower = 999f;
     [SerializeField, Range(0, 10)]
@@ -39,14 +41,9 @@ namespace Es.Charactor
 
     private float horizontalInput;
     private float verticalInput;
-    private bool leftHandAttackInput;//"左手"での攻撃(右に飛ばす)
-    private bool rightHandAttackInput;//"右手"での攻撃(左に飛ばす)
-    private bool forwardLeftHandAttackInput;//"左手"での攻撃(前に飛ばす)
-    private bool forwardRightHandAttackInput;//"右手"での攻撃(前に飛ばす)
-    private Vector2 dir;
-
-    private const string LEFT_HAND = "LeftHand";
-    private const string RIGHT_HAND = "RightHand";
+    private bool leftHandAttackInput;//"左手"での攻撃
+    private bool rightHandAttackInput;//"右手"での攻撃
+    private Vector2 moveDir;//移動方向
 
     /**************************************************
      * override
@@ -67,14 +64,18 @@ namespace Es.Charactor
         case PlayerState.Play:
 
           #region 移動
-          dir = new Vector2(horizontalInput, verticalInput);
-          transform.Translate(Time.deltaTime * moveSpeed * dir, Space.World);
+          moveDir = new Vector2(horizontalInput, verticalInput);
+          transform.Translate(Time.deltaTime * moveSpeed * moveDir, Space.World);
+
+          var arrowDir = Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position;
+          var angle = Mathf.Atan2(arrowDir.y, arrowDir.x) * Mathf.Rad2Deg;
+          arrowOrigin.transform.eulerAngles = new Vector3(0f, 0f, angle);
           #endregion 移動
 
           #region 攻撃
 
-          //Debug.DrawLine(attackOrigin.position - Vector3.right * attackRadius, attackOrigin.position + Vector3.right * attackRadius);
-          if(leftHandAttackInput || rightHandAttackInput || forwardLeftHandAttackInput || forwardRightHandAttackInput)
+          DebugExtension.DrawCircle(attackOrigin.position, attackRadius, Color.green);
+          if(leftHandAttackInput || rightHandAttackInput)
           {
             /**************************************************
              * Enemyタグをもつ目の前のコライダーの取得と
@@ -99,12 +100,11 @@ namespace Es.Charactor
               });//Play状態
 
             //それぞれの攻撃による吹き飛ばし
+            var exprDir = dirHelper.position - arrowOrigin.position;
             if(leftHandAttackInput)
-              AddForce(cols, new Vector2(1, -1), attackPower);
-            else if(rightHandAttackInput)
-              AddForce(cols, new Vector2(1, 1), attackPower);
-            else if(forwardLeftHandAttackInput || forwardRightHandAttackInput)
-              AddForce(cols, new Vector2(1, 0), attackPower);
+              AddForce(cols, exprDir, attackPower);
+            if(rightHandAttackInput)
+              AddForce(cols, exprDir, attackPower);
 
             //対象のステート変更とダメージ処理
             foreach(var col in cols)
@@ -126,6 +126,12 @@ namespace Es.Charactor
       }
     }
 
+    public void OnGUI()
+    {
+      GUILayout.TextArea(leftHandAttackInput.ToString());
+      GUILayout.TextArea(rightHandAttackInput.ToString());
+    }
+
     /**************************************************
      * method
      **************************************************/
@@ -137,10 +143,8 @@ namespace Es.Charactor
     {
       horizontalInput = Input.GetAxis("Horizontal");
       verticalInput = Input.GetAxis("Vertical");
-      leftHandAttackInput = Input.GetButtonDown("LeftHandAttack");
-      rightHandAttackInput = Input.GetButtonDown("RightHandAttack");
-      forwardLeftHandAttackInput = Input.GetButtonDown("ForwardLeftHandAttack");
-      forwardRightHandAttackInput = Input.GetButtonDown("ForwardRightHandAttack");
+      leftHandAttackInput = Input.GetButtonDown("Fire1");
+      rightHandAttackInput = Input.GetButtonDown("Fire2");
     }
   }
 }

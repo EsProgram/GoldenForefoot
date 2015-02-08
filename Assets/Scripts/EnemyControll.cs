@@ -14,6 +14,7 @@ namespace Es.Charactor
     Idle,//停止状態
     Play,//活動状態
     Panched,//猫パンチを喰らって飛ばされている状態
+    Dead,//死亡状態
   }
 
   public class EnemyControll : CharactorBase
@@ -47,17 +48,13 @@ namespace Es.Charactor
       switch(state)
       {
         case EnemyState.Idle:
-          Debug.Log(name + ":Idle状態に遷移しました");
           break;
 
         case EnemyState.Play:
 
           //HPが0になったら爆発
           if(hp <= 0)
-          {
-            AddExprForceAndDamage();
-            Dead();
-          }
+            state = EnemyState.Dead;
 
           break;
 
@@ -84,6 +81,12 @@ namespace Es.Charactor
               timeFixFlagOnPanched = false;
             }
           }
+
+          break;
+
+        case EnemyState.Dead:
+          AddExprForceAndDamage();
+          Dead();
 
           break;
 
