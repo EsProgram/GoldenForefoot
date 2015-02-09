@@ -34,6 +34,8 @@ namespace Es.Charactor
     private Transform arrowOrigin = default(Transform);
     [SerializeField]
     private Transform dirHelper = default(Transform);
+    [SerializeField, Range(0, 1)]
+    private float slowSpeedRate = 0.5f;
     [SerializeField, Range(0, 999)]
     private float attackPower = 999f;
     [SerializeField, Range(0, 10)]
@@ -43,6 +45,9 @@ namespace Es.Charactor
     private float verticalInput;
     private bool leftHandAttackInput;//"左手"での攻撃
     private bool rightHandAttackInput;//"右手"での攻撃
+    private bool slowSpeedInput;//低速移動
+    private bool slowTrriger;//ボタンを押す度低速とノーマル入れ替え
+
     private Vector2 moveDir;//移動方向
 
     /**************************************************
@@ -65,7 +70,13 @@ namespace Es.Charactor
 
           #region 移動
           moveDir = new Vector2(horizontalInput, verticalInput);
-          transform.Translate(Time.deltaTime * moveSpeed * moveDir, Space.World);
+          if(moveDir.magnitude > 1f)
+            moveDir = moveDir.normalized;
+          if(slowSpeedInput)
+            slowTrriger = !slowTrriger;
+          if(slowTrriger)
+            moveDir *= slowSpeedRate;
+          transform.Translate(Time.deltaTime * moveDir * moveSpeed, Space.World);
 
           var arrowDir = Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position;
           var angle = Mathf.Atan2(arrowDir.y, arrowDir.x) * Mathf.Rad2Deg;
@@ -126,12 +137,6 @@ namespace Es.Charactor
       }
     }
 
-    public void OnGUI()
-    {
-      GUILayout.TextArea(leftHandAttackInput.ToString());
-      GUILayout.TextArea(rightHandAttackInput.ToString());
-    }
-
     /**************************************************
      * method
      **************************************************/
@@ -145,6 +150,7 @@ namespace Es.Charactor
       verticalInput = Input.GetAxis("Vertical");
       leftHandAttackInput = Input.GetButtonDown("Fire1");
       rightHandAttackInput = Input.GetButtonDown("Fire2");
+      slowSpeedInput = Input.GetButtonDown("Fire3");
     }
   }
 }
