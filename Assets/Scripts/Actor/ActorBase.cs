@@ -28,6 +28,13 @@ namespace Es.Actor
     [SerializeField]
     protected State state = State.Play;
 
+    protected Animator animator;
+
+    protected bool exprDamageTrigger;//爆発によるダメージを受けた際にONになる
+
+    private const int NORMAL_DAMAGE = 1;
+    private const int EXPR_DAMAGE = 3;
+
     /**************************************************
      * property
      **************************************************/
@@ -50,6 +57,11 @@ namespace Es.Actor
     /**************************************************
      * method
      **************************************************/
+
+    public virtual void Awake()
+    {
+      animator = GetComponent<Animator>();
+    }
 
     /// <summary>
     /// 複数のコライダーのrigidbody2Dに指定した方向に力を加える
@@ -87,7 +99,27 @@ namespace Es.Actor
     /// </summary>
     protected virtual void Damaged()
     {
-      --hp;
+      state = State.Attacked;
+      hp -= NORMAL_DAMAGE;
+      animator.SetTrigger("Damaged");
+    }
+
+    /// <summary>
+    /// 爆発によるダメージを受けた時の動作
+    /// セットされるトリガーを使って各自で実装
+    /// </summary>
+    protected virtual void ExprDamaged()
+    {
+      exprDamageTrigger = true;
+      state = State.Attacked;
+      hp -= EXPR_DAMAGE;
+      animator.SetTrigger("Damaged");
+      Invoke("ExprDamageTriggerReset", 0.1f);
+    }
+
+    private void ExprDamageTriggerReset()
+    {
+      exprDamageTrigger = false;
     }
   }
 }

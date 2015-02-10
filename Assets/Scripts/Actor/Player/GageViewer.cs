@@ -11,13 +11,13 @@ public class GageViewer : MonoBehaviour
   [SerializeField]
   private WhichHand which = WhichHand.Left;
 
-  private PlayerController ctrl;
+  private PlayerControl ctrl;
   private SpriteRenderer sprite;
   private float defaultScaleX;
 
   public void Awake()
   {
-    ctrl = GetComponentInParent<PlayerController>();
+    ctrl = GetComponentInParent<PlayerControl>();
     sprite = GetComponent<SpriteRenderer>();
   }
 

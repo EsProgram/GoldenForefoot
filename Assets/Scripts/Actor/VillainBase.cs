@@ -11,7 +11,7 @@ namespace Es.Actor
      **************************************************/
 
     [SerializeField, Tooltip("爆破時に使用するエフェクトプレハブ")]
-    private GameObject exprPrefab = default(GameObject);
+    private GameObject exprPrefab = null;
     [SerializeField, Range(0, 10), Tooltip("爆破時の吹き飛ばし範囲の半径")]
     private float exprRadius = 0.5f;
     [SerializeField, Range(0f, 3000f), Tooltip("爆破時の吹き飛ばしで周囲のオブジェクトに与える力")]
@@ -22,21 +22,20 @@ namespace Es.Actor
      **************************************************/
 
     /// <summary>
-    /// プレイヤーに接触したら爆発処理
+    /// プレイヤーに接触した際のダメージ処理
     /// </summary>
     public virtual void OnCollisionEnter2D(Collision2D coll)
     {
       if(coll.gameObject.tag == "Player")
-        ExprDead();
+        DeadOnExpr();
     }
 
     /// <summary>
-    /// プレイヤーに接触したら爆発処理
+    /// 画面からフェードアウトしたら破棄
     /// </summary>
-    public virtual void OnTriggerEnter2D(Collider2D other)
+    public void OnBecameInvisible()
     {
-      if(other.tag == "Player")
-        ExprDead();
+      Destroy(gameObject);
     }
 
     /// <summary>
@@ -44,7 +43,7 @@ namespace Es.Actor
     /// 周囲のコライダーを取得して四散させ、ダメージを与える
     /// 取得するコライダーはActorBaseがアタッチされたもの
     /// </summary>
-    private void AddExprForceAndDamage()
+    protected void AddExprForceAndDamage()
     {
       //周囲のコライダー取得
       var targets = Physics2D.OverlapCircleAll(transform.position, exprRadius)
@@ -65,27 +64,28 @@ namespace Es.Actor
       foreach(var target in targets)
       {
         AddForce(target.col, target.direction, exprPower);
-        target.col.SendMessage("Damaged");
+        target.col.SendMessage("ExprDamaged");
       }
     }
 
     /// <summary>
     /// 死亡処理
-    /// 死亡エフェクトの表示とゲームオブジェクトの破棄のみを行う
+    /// 周囲にダメージ・力を与えない
     /// </summary>
-    private void Dead()
+    protected void DeadOnSilent()
     {
       Destroy(Instantiate(exprPrefab, transform.position, Quaternion.identity), 2f);
       Destroy(gameObject);
     }
 
     /// <summary>
-    /// 爆発・死亡処理
+    /// 死亡処理
+    /// 周囲に力・ダメージを与える
     /// </summary>
-    protected void ExprDead()
+    protected void DeadOnExpr()
     {
       AddExprForceAndDamage();
-      Dead();
+      DeadOnSilent();
     }
   }
 }

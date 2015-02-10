@@ -21,6 +21,7 @@ namespace Es.Actor
 
     protected override void Move()
     {
+      transform.Translate(dir * speed * Time.deltaTime);
     }
   }
 }

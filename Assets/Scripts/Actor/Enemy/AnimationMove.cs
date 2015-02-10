@@ -17,6 +17,7 @@ public class AnimationMove : MonoBehaviour
   [SerializeField, Tooltip("Animationで変更し、移動方向を制御するための変数")]
   private Vector2 direction = Vector2.zero;
 
+  private Animator animator;
   /**************************************************
    * method
    **************************************************/
@@ -24,16 +25,27 @@ public class AnimationMove : MonoBehaviour
   private void Awake()
   {
     if(setTriger != string.Empty)
-      GetComponent<Animator>().SetTrigger(setTriger);
+    {
+      animator = GetComponent<Animator>();
+      SetTrigger();
+    }
   }
 
   private void Update()
   {
+    if(animator.GetCurrentAnimatorStateInfo(0).IsName("None"))
+      SetTrigger();
+
     transform.Translate(Time.deltaTime * direction.normalized * speed);
   }
 
   private void SetTrigger(string triggerName)
   {
     GetComponent<Animator>().SetTrigger(triggerName);
+  }
+
+  private void SetTrigger()
+  {
+    SetTrigger(setTriger);
   }
 }

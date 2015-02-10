@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Es.Actor
 {
-  public class EnemyControll : VillainBase
+  public class EnemyControl : VillainBase
   {
     /**************************************************
      * field
@@ -23,9 +23,6 @@ namespace Es.Actor
     {
       switch(state)
       {
-        case State.Idle:
-          break;
-
         case State.Play:
 
           //HPが0になったら爆発
@@ -39,17 +36,17 @@ namespace Es.Actor
           //物理演算処理との時間差を吸収できていれば
           if(timeFixFlagOnPanched)
           {
+            //爆発に巻き込まれてHPが無くなったらその場で爆発
+            if(exprDamageTrigger && hp <= 0)
+            {
+              DeadOnExpr();
+            }
+
             //吹き飛びの速度が一定以下になった
             if(rigidbody2D.velocity.magnitude < Vector2.one.magnitude)
             {
-              //HPが0になっていたら爆発する(周りに力を与え、ダメージメッセージを送信)
               if(hp <= 0)
-              {
-                #region 爆発処理
-
-                ExprDead();
-                #endregion 爆発処理
-              }
+                DeadOnExpr();
               state = State.Play;
               timeFixFlagOnPanched = false;
             }
@@ -58,7 +55,7 @@ namespace Es.Actor
           break;
 
         case State.Dead:
-          ExprDead();
+          DeadOnExpr();
 
           break;
 

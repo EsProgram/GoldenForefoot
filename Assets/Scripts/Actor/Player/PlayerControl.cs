@@ -19,18 +19,18 @@ namespace Es.Actor
   /// <summary>
   /// プレイヤー制御
   /// </summary>
-  public class PlayerController : ActorBase
+  public class PlayerControl : ActorBase
   {
     /**************************************************
      * field
      **************************************************/
 
     [SerializeField, Tooltip("攻撃範囲(円)の原点(中心座標)になる")]
-    private Transform attackOrigin = default(Transform);
+    private Transform attackOrigin = null;
     [SerializeField, Tooltip("攻撃方向補助矢印の原点(中心座標)になる")]
-    private Transform arrowOrigin = default(Transform);
+    private Transform arrowOrigin = null;
     [SerializeField, Tooltip("吹き飛ばし方向を決定するためのヘルパー")]
-    private Transform dirHelper = default(Transform);
+    private Transform dirHelper = null;
     [SerializeField, Range(0, 10)]
     private float moveSpeed = 5f;
     [SerializeField, Range(0, 1)]
@@ -39,7 +39,7 @@ namespace Es.Actor
     private float attackPower = 999f;
     [SerializeField, Range(0, 10)]
     private float attackRadius = 0.5f;
-    [SerializeField, Tooltip("1秒でのゲージ上昇値(1で1秒につきゲージマックスまで貯まる)")]
+    [SerializeField, Range(0, 1), Tooltip("1秒でのゲージ上昇値(1で1秒につきゲージマックスまで貯まる)")]
     private float gageUp = 0.5f;
 
     private float horizontalInput;
@@ -51,6 +51,8 @@ namespace Es.Actor
 
     private float leftGage;
     private float rightGage;
+    private int maxHP;
+    private bool clearFlag;
 
     private const float MIN_ATTACK_GAGE = 0.5f;//攻撃に必要なゲージの最小値
 
@@ -63,10 +65,16 @@ namespace Es.Actor
     public float LeftGage { get { return leftGage; } }
     public float RightGage { get { return rightGage; } }
     public float MinAttackGage { get { return MIN_ATTACK_GAGE; } }
+    public int MaxHP { get { return maxHP; } }
 
     /**************************************************
      * method
      **************************************************/
+
+    public void Start()
+    {
+      maxHP = hp;
+    }
 
     public void Update()
     {
@@ -116,12 +124,12 @@ namespace Es.Actor
           break;
 
         case State.Attacked:
-          Debug.Log(name + ":Attacked状態に遷移しました");
           state = State.Play;
           break;
 
         case State.Dead:
           Debug.Log(name + "Dead状態に遷移しました");
+          Application.LoadLevel(Application.loadedLevel);
           break;
 
         default:
@@ -157,8 +165,7 @@ namespace Es.Actor
             return false;
 
           return actor.tag != "Player" &&
-                 actor.HP > 0 &&
-                 actor.CurrentState == State.Play;
+                 actor.HP > 0;
         });
       #endregion コライダーの取得
 
@@ -216,6 +223,35 @@ namespace Es.Actor
 
       leftGage = Mathf.Max(0f, leftGage);
       rightGage = Mathf.Max(0f, rightGage);
+    }
+
+    /// <summary>
+    /// HPを回復する
+    /// </summary>
+    /// <param name="healValue">回復量</param>
+    public void Heal(int healValue)
+    {
+      hp = Math.Min(hp + healValue, MaxHP);
+    }
+
+    /// <summary>
+    /// クリア後ダメージを喰らわなくする処理
+    /// </summary>
+    public void Clear()
+    {
+      clearFlag = true;
+    }
+
+    protected override void Damaged()
+    {
+      if(!clearFlag)
+        base.Damaged();
+    }
+
+    protected override void ExprDamaged()
+    {
+      if(!clearFlag)
+        base.ExprDamaged();
     }
   }
 }
