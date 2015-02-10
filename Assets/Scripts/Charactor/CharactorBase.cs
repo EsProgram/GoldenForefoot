@@ -15,8 +15,6 @@ namespace Es.Charactor
      **************************************************/
     [SerializeField, Range(0, 999)]
     protected int hp;
-    [SerializeField]
-    protected float moveSpeed;
 
     /**************************************************
      * method

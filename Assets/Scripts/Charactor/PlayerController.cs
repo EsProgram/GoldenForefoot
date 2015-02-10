@@ -10,7 +10,7 @@ namespace Es.Charactor
   /// <summary>
   /// プレイヤーの状態
   /// </summary>
-  internal enum PlayerState
+  public enum PlayerState
   {
     Idle,//強制的に動けない状態
     Play,//ゲームプレイ中の状態
@@ -34,6 +34,8 @@ namespace Es.Charactor
     private Transform arrowOrigin = default(Transform);
     [SerializeField]
     private Transform dirHelper = default(Transform);
+    [SerializeField, Range(0, 10)]
+    private float moveSpeed = 5f;
     [SerializeField, Range(0, 1)]
     private float slowSpeedRate = 0.5f;
     [SerializeField, Range(0, 999)]
@@ -77,6 +79,7 @@ namespace Es.Charactor
           if(slowTrriger)
             moveDir *= slowSpeedRate;
           transform.Translate(Time.deltaTime * moveDir * moveSpeed, Space.World);
+          Debug.Log(Camera.main.WorldToViewportPoint(transform.position));
 
           var arrowDir = Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position;
           var angle = Mathf.Atan2(arrowDir.y, arrowDir.x) * Mathf.Rad2Deg;
@@ -120,6 +123,7 @@ namespace Es.Charactor
             //対象のステート変更とダメージ処理
             foreach(var col in cols)
             {
+              col.GetComponent<Animator>().StopPlayback();
               col.GetComponent<EnemyControll>().State = EnemyState.Panched;
               col.gameObject.SendMessage("Damaged");
             }

@@ -9,7 +9,7 @@ namespace Es.Charactor
   /// <summary>
   /// 敵の状態
   /// </summary>
-  internal enum EnemyState
+  public enum EnemyState
   {
     Idle,//停止状態
     Play,//活動状態
@@ -28,7 +28,7 @@ namespace Es.Charactor
     private GameObject exprPrefab = default(GameObject);//テスト用爆発エフェクト
     [SerializeField, Range(0, 10)]
     private float exprRadius = 1f;//爆破時の吹き飛ばし範囲
-    [SerializeField, Range(0f, 999f)]
+    [SerializeField, Range(0f, 3000f)]
     private float exprPower = 999f;//爆破時の吹き飛ばしで周囲のオブジェクトに与える力
 
     private bool timeFixFlagOnPanched = false;//パンチされた際の物理的挙動が適用された後かどうか
@@ -37,7 +37,7 @@ namespace Es.Charactor
      * property
      **************************************************/
 
-    internal EnemyState State { get { return state; } set { state = value; } }
+    public EnemyState State { get { return state; } set { state = value; } }
 
     /**************************************************
      * override
@@ -104,10 +104,15 @@ namespace Es.Charactor
 
     public void OnCollisionEnter2D(Collision2D coll)
     {
-      // 一定の条件下で、velocityをゼロに設定する
+      // HP0,パンチされた状態で他の何かにぶつかったら、velocityをゼロに設定する
       if(hp <= 0 && State == EnemyState.Panched)
-      {
         rigidbody2D.velocity = Vector2.zero;
+
+      // プレイヤーにぶつかったら爆発、ダメージを与える
+      if(coll.gameObject.tag == "Player")
+      {
+        AddExprForceAndDamage();
+        Dead();
       }
     }
 
