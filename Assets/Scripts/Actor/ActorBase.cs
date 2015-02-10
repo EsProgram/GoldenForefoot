@@ -22,16 +22,14 @@ namespace Es.Actor
      * field
      **************************************************/
     [SerializeField, Range(0, 999)]
-    protected int hp = 1;
-    [SerializeField, Range(0, 1)]
-    protected float gageConsume = 0.3f;
-    [SerializeField]
-    protected State state = State.Play;
+    private int hp = 1;
+    public State state = State.Play;
 
     protected Animator animator;
 
     protected bool exprDamageTrigger;//爆発によるダメージを受けた際にONになる
 
+    private int maxHP;
     private const int NORMAL_DAMAGE = 1;
     private const int EXPR_DAMAGE = 3;
 
@@ -40,19 +38,11 @@ namespace Es.Actor
      **************************************************/
 
     /// <summary>
-    /// 残りHPを返す
+    /// 残りHP
     /// </summary>
-    public int HP { get { return hp; } }
+    public int HP { get { return hp; } set { hp = Mathf.Min(Mathf.Max(0, value), MaxHP); } }
 
-    /// <summary>
-    ///ゲージの消費値を返す
-    /// </summary>
-    public float GageConsume { get { return gageConsume; } }
-
-    /// <summary>
-    /// 現在の状態を得る
-    /// </summary>
-    public State CurrentState { get { return state; } set { state = value; } }
+    public int MaxHP { get { return maxHP; } }
 
     /**************************************************
      * method
@@ -61,6 +51,11 @@ namespace Es.Actor
     public virtual void Awake()
     {
       animator = GetComponent<Animator>();
+    }
+
+    public virtual void Start()
+    {
+      maxHP = hp;
     }
 
     /// <summary>
@@ -100,7 +95,7 @@ namespace Es.Actor
     protected virtual void Damaged()
     {
       state = State.Attacked;
-      hp -= NORMAL_DAMAGE;
+      HP -= NORMAL_DAMAGE;
       animator.SetTrigger("Damaged");
     }
 
@@ -112,7 +107,7 @@ namespace Es.Actor
     {
       exprDamageTrigger = true;
       state = State.Attacked;
-      hp -= EXPR_DAMAGE;
+      HP -= EXPR_DAMAGE;
       animator.SetTrigger("Damaged");
       Invoke("ExprDamageTriggerReset", 0.1f);
     }

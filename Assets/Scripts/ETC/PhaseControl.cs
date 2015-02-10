@@ -17,6 +17,7 @@ public class PhaseControl : MonoBehaviour
   private bool nextTrigger = false;
   private int currentInstantiateIndex = 0;
   private GameObject currentPhase;
+  private bool calledlear;
 
   /**************************************************
    * method
@@ -64,11 +65,15 @@ public class PhaseControl : MonoBehaviour
 
   /// <summary>
   /// クリアオブジェクトのClearメソッドを呼び出す
+  /// 1回しか呼ばれない
   /// </summary>
   private void Clear()
   {
+    if(calledlear)
+      return;
     Debug.Log("クリア");
     foreach(var obj in clearObjects)
       obj.SendMessage("Clear");
+    calledlear = true;
   }
 }

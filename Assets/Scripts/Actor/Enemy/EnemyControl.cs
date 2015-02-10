@@ -37,7 +37,7 @@ namespace Es.Actor
           if(timeFixFlagOnPanched)
           {
             //爆発に巻き込まれてHPが無くなったらその場で爆発
-            if(exprDamageTrigger && hp <= 0)
+            if(exprDamageTrigger && HP <= 0)
             {
               DeadOnExpr();
             }
@@ -45,7 +45,7 @@ namespace Es.Actor
             //吹き飛びの速度が一定以下になった
             if(rigidbody2D.velocity.magnitude < Vector2.one.magnitude)
             {
-              if(hp <= 0)
+              if(HP <= 0)
                 DeadOnExpr();
               state = State.Play;
               timeFixFlagOnPanched = false;
@@ -77,7 +77,7 @@ namespace Es.Actor
       base.OnCollisionEnter2D(coll);
 
       // HP0,パンチされた状態で他の何かにぶつかったら、velocityをゼロに設定する
-      if(hp <= 0 && state == State.Attacked)
+      if(HP <= 0 && state == State.Attacked)
         rigidbody2D.velocity = Vector2.zero;
     }
   }

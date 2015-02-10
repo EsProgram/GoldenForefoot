@@ -51,7 +51,6 @@ namespace Es.Actor
 
     private float leftGage;
     private float rightGage;
-    private int maxHP;
     private bool clearFlag;
 
     private const float MIN_ATTACK_GAGE = 0.5f;//攻撃に必要なゲージの最小値
@@ -65,16 +64,10 @@ namespace Es.Actor
     public float LeftGage { get { return leftGage; } }
     public float RightGage { get { return rightGage; } }
     public float MinAttackGage { get { return MIN_ATTACK_GAGE; } }
-    public int MaxHP { get { return maxHP; } }
 
     /**************************************************
      * method
      **************************************************/
-
-    public void Start()
-    {
-      maxHP = hp;
-    }
 
     public void Update()
     {
@@ -160,18 +153,18 @@ namespace Es.Actor
       var colls = Physics2D.OverlapCircleAll(attackOrigin.position, attackRadius)
         .Where(c =>
         {
-          var actor = c.GetComponent<ActorBase>();
-          if(actor == null)
+          var villain = c.GetComponent<VillainBase>();
+          if(villain == null)
             return false;
 
-          return actor.tag != "Player" &&
-                 actor.HP > 0;
+          return villain.tag != "Player" &&
+                 villain.HP > 0;
         });
       #endregion コライダーの取得
 
       #region ゲージの消費
       foreach(var coll in colls)
-        Consume(which, coll.GetComponent<ActorBase>().GageConsume);
+        Consume(which, coll.GetComponent<VillainBase>().GageConsume);
       #endregion ゲージの消費
 
       #region コライダーの吹き飛ばし
@@ -182,7 +175,7 @@ namespace Es.Actor
       #region コライダーのステート変更・ダメージ処理
       foreach(var coll in colls)
       {
-        coll.GetComponent<ActorBase>().CurrentState = State.Attacked;
+        coll.GetComponent<ActorBase>().state = State.Attacked;
         coll.gameObject.SendMessage("Damaged");
       }
       #endregion コライダーのステート変更・ダメージ処理
@@ -231,7 +224,7 @@ namespace Es.Actor
     /// <param name="healValue">回復量</param>
     public void Heal(int healValue)
     {
-      hp = Math.Min(hp + healValue, MaxHP);
+      HP += healValue;
     }
 
     /// <summary>

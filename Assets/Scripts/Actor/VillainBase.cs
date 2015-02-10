@@ -9,13 +9,23 @@ namespace Es.Actor
     /**************************************************
      * field
      **************************************************/
-
+    [SerializeField, Range(0, 1), Tooltip("攻撃された際に消費させるゲージの値")]
+    protected float gageConsume = 0.3f;
     [SerializeField, Tooltip("爆破時に使用するエフェクトプレハブ")]
     private GameObject exprPrefab = null;
     [SerializeField, Range(0, 10), Tooltip("爆破時の吹き飛ばし範囲の半径")]
     private float exprRadius = 0.5f;
     [SerializeField, Range(0f, 3000f), Tooltip("爆破時の吹き飛ばしで周囲のオブジェクトに与える力")]
     private float exprPower = 999f;
+
+    /**************************************************
+     * property
+     **************************************************/
+
+    /// <summary>
+    ///ゲージの消費値を返す
+    /// </summary>
+    public float GageConsume { get { return gageConsume; } }
 
     /**************************************************
      * method
