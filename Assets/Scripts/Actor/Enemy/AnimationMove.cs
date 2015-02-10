@@ -10,37 +10,26 @@ public class AnimationMove : MonoBehaviour
    * field
    **************************************************/
 
-  [SerializeField]
+  [SerializeField, Tooltip("Awakeメソッドでアニメーションを変更する際のトリガー名")]
   private string setTriger = string.Empty;
   [SerializeField, Range(0, 10)]
   private float speed = 5f;
-  [SerializeField]
+  [SerializeField, Tooltip("Animationで変更し、移動方向を制御するための変数")]
   private Vector2 direction = Vector2.zero;
-  [SerializeField]
-  private bool isMove = false;
 
   /**************************************************
    * method
    **************************************************/
 
-  public void MoveStart()
-  {
-    isMove = true;
-    GetComponent<Animator>().Play(setTriger);
-  }
-
   private void Awake()
   {
     if(setTriger != string.Empty)
-    {
       GetComponent<Animator>().SetTrigger(setTriger);
-    }
   }
 
   private void Update()
   {
-    if(isMove)
-      transform.Translate(Time.deltaTime * direction.normalized * speed);
+    transform.Translate(Time.deltaTime * direction.normalized * speed);
   }
 
   private void SetTrigger(string triggerName)

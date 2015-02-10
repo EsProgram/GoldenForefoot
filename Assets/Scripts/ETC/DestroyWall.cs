@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Es.Actor;
+using System.Collections;
 using UnityEngine;
 
 /// <summary>
@@ -6,8 +7,14 @@ using UnityEngine;
 /// </summary>
 public class DestroyWall : MonoBehaviour
 {
+  /// <summary>
+  /// 接触者がPlayer以外のActor
+  /// かつHPが0の場合爆破
+  /// </summary>
   public void OnCollisionEnter2D(Collision2D coll)
   {
-    Destroy(coll.gameObject);
+    var actor = coll.gameObject.GetComponent<ActorBase>();
+    if(actor != null && actor.tag != "Player" && actor.HP < 1)
+      coll.gameObject.SendMessage("ExprDead");
   }
 }

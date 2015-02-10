@@ -3,31 +3,53 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Es.Charactor
+namespace Es.Actor
 {
+  public enum State
+  {
+    Idle,//プレイ停止時
+    Play,//プレイ中全般
+    Attacked,//攻撃を受けた時
+    Dead,//破壊されるとき
+  }
+
   /// <summary>
-  /// 全てのキャラクターの基本となるクラス
+  /// ゲーム内アクターの基本となるクラス
   /// </summary>
-  public abstract class CharactorBase : MonoBehaviour
+  public abstract class ActorBase : MonoBehaviour
   {
     /**************************************************
      * field
      **************************************************/
     [SerializeField, Range(0, 999)]
-    protected int hp;
+    protected int hp = 1;
+    [SerializeField, Range(0, 1)]
+    protected float gageConsume = 0.3f;
+    [SerializeField]
+    protected State state = State.Play;
 
     /**************************************************
-     * method
+     * property
      **************************************************/
 
     /// <summary>
     /// 残りHPを返す
     /// </summary>
-    /// <returns>残りHP</returns>
-    public int GetHP()
-    {
-      return hp;
-    }
+    public int HP { get { return hp; } }
+
+    /// <summary>
+    ///ゲージの消費値を返す
+    /// </summary>
+    public float GageConsume { get { return gageConsume; } }
+
+    /// <summary>
+    /// 現在の状態を得る
+    /// </summary>
+    public State CurrentState { get { return state; } set { state = value; } }
+
+    /**************************************************
+     * method
+     **************************************************/
 
     /// <summary>
     /// 複数のコライダーのrigidbody2Dに指定した方向に力を加える
@@ -42,10 +64,7 @@ namespace Es.Charactor
       foreach(var col in cols)
       {
         if(col.rigidbody2D == null)
-        {
-          Debug.LogWarning(col.name + "にrigidbody2Dが適用されていません");
           continue;
-        }
         col.rigidbody2D.AddForce(dir * power);
       }
     }
