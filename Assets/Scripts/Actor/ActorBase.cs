@@ -23,6 +23,8 @@ namespace Es.Actor
      **************************************************/
     [SerializeField, Range(0, 999)]
     private int hp = 1;
+    [SerializeField, Tooltip("爆破時に使用するエフェクトプレハブ")]
+    protected GameObject exprPrefab = null;
     public State state = State.Play;
 
     protected Animator animator;

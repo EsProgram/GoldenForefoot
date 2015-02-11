@@ -224,3 +224,5 @@ sysinfo.txt
 /Assets/Sprites/Player/arrow.png
 /Assets/Prefabs
 *.unity
+*.jpg
+*.ttf

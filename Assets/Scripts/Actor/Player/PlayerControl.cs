@@ -78,7 +78,6 @@ namespace Es.Actor
       switch(state)
       {
         case State.Idle:
-          Debug.Log(name + ":Idle状態に遷移しました");
           break;
 
         case State.Play:
@@ -121,8 +120,13 @@ namespace Es.Actor
           break;
 
         case State.Dead:
-          Debug.Log(name + "Dead状態に遷移しました");
-          Application.LoadLevel(Application.loadedLevel);
+          if(rigidbody2D.velocity.magnitude < Vector2.one.magnitude)
+          {
+            Instantiate(exprPrefab, transform.position, Quaternion.identity);
+            GetComponentsInChildren<SpriteRenderer>().ToList().ForEach(s => { s.enabled = false; });
+            Invoke("LoadGameOverScene", 3f);
+            state = State.Idle;
+          }
           break;
 
         default:
@@ -220,6 +224,7 @@ namespace Es.Actor
 
     /// <summary>
     /// HPを回復する
+    /// シーン開始時のHP以上にはならない
     /// </summary>
     /// <param name="healValue">回復量</param>
     public void Heal(int healValue)
@@ -245,6 +250,11 @@ namespace Es.Actor
     {
       if(!clearFlag)
         base.ExprDamaged();
+    }
+
+    private void LoadGameOverScene()
+    {
+      Application.LoadLevel("GameOver");
     }
   }
 }

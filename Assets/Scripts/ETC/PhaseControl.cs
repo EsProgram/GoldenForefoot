@@ -38,7 +38,7 @@ public class PhaseControl : MonoBehaviour
 
     //全てのフェーズを完了した時に呼び出される(クリア処理)
     if(currentPhase == null && currentInstantiateIndex == phasePrefabs.Count)
-      if(clearObjects.Any(o => { return o.tag == "Player" && o.GetComponent<PlayerControl>().HP > 0; }))
+      if(GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerControl>().HP > 0)
         Clear();
 
     //現在実行されているPhaseがなければトリガーをOnにする
@@ -53,6 +53,12 @@ public class PhaseControl : MonoBehaviour
     GUILayout.Label("現在のフェーズ:" + currentInstantiateIndex.ToString());
     if(currentInstantiateIndex >= phasePrefabs.Count)
       GUILayout.Label("これ以上のフェーズは存在しません");
+    if(GUILayout.Button("HP全回復"))
+      GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerControl>().Heal(9999);
+    if(GUILayout.Button("タイトルへ戻る"))
+      Application.LoadLevel("Title");
+    if(GUILayout.Button("クリア画面に進む"))
+      Application.LoadLevel("Clear");
   }
 
   /// <summary>
@@ -74,6 +80,12 @@ public class PhaseControl : MonoBehaviour
     Debug.Log("クリア");
     foreach(var obj in clearObjects)
       obj.SendMessage("Clear");
+    Invoke("LoadClearScene", 3f);
     calledlear = true;
+  }
+
+  private void LoadClearScene()
+  {
+    Application.LoadLevel("Clear");
   }
 }
