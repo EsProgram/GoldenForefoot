@@ -11,7 +11,7 @@ public class PhaseControl : MonoBehaviour
    **************************************************/
   [SerializeField, Tooltip("ステージで使用するフェーズのプレハブ")]
   private List<GameObject> phasePrefabs = null;
-  [SerializeField, Tooltip("クリアアニメーションに移行させるオブジェクト\nClearメソッドを持つ")]
+  [SerializeField, Tooltip("クリアアニメーションに移行させるGameClearメソッドをもつオブジェクト")]
   private List<GameObject> clearObjects = null;
 
   private bool nextTrigger = false;
@@ -39,27 +39,27 @@ public class PhaseControl : MonoBehaviour
     //全てのフェーズを完了した時に呼び出される(クリア処理)
     if(currentPhase == null && currentInstantiateIndex == phasePrefabs.Count)
       if(GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerControl>().HP > 0)
-        Clear();
+        GameClear();
 
     //現在実行されているPhaseがなければトリガーをOnにする
     if(currentPhase == null)
       SetTrigger();
   }
 
-  //public void OnGUI()
-  //{
-  //  if(GUILayout.Button("次のフェーズ"))
-  //    SetTrigger();
-  //  GUILayout.Label("現在のフェーズ:" + currentInstantiateIndex.ToString());
-  //  if(currentInstantiateIndex >= phasePrefabs.Count)
-  //    GUILayout.Label("これ以上のフェーズは存在しません");
-  //  if(GUILayout.Button("HP全回復"))
-  //    GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerControl>().Heal(9999);
-  //  if(GUILayout.Button("タイトルへ戻る"))
-  //    Application.LoadLevel("Title");
-  //  if(GUILayout.Button("クリア画面に進む"))
-  //    Application.LoadLevel("Clear");
-  //}
+  public void OnGUI()
+  {
+    if(GUILayout.Button("次のフェーズ"))
+      SetTrigger();
+    GUILayout.Label("現在のフェーズ:" + currentInstantiateIndex.ToString());
+    if(currentInstantiateIndex >= phasePrefabs.Count)
+      GUILayout.Label("これ以上のフェーズは存在しません");
+    if(GUILayout.Button("HP全回復"))
+      GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerControl>().Heal(9999);
+    if(GUILayout.Button("タイトルへ戻る"))
+      Application.LoadLevel("Title");
+    if(GUILayout.Button("クリア画面に進む"))
+      Application.LoadLevel("GameClear");
+  }
 
   /// <summary>
   /// 次のフェーズを開始するトリガーをセットする
@@ -70,22 +70,25 @@ public class PhaseControl : MonoBehaviour
   }
 
   /// <summary>
-  /// クリアオブジェクトのClearメソッドを呼び出す
+  /// クリアオブジェクトのGameClearメソッドを呼び出す
   /// 1回しか呼ばれない
   /// 一定秒後にクリアシーンに切り替える
   /// </summary>
-  private void Clear()
+  private void GameClear()
   {
     if(calledlear)
       return;
     foreach(var obj in clearObjects)
-      obj.SendMessage("Clear");
-    Invoke("LoadClearScene", 3f);
+      obj.SendMessage("GameClear");
+    Invoke("LoadGameClearScene", 3f);
     calledlear = true;
   }
 
-  private void LoadClearScene()
+  /// <summary>
+  /// GameClearシーンを呼び出す
+  /// </summary>
+  private void LoadGameClearScene()
   {
-    Application.LoadLevel("Clear");
+    Application.LoadLevel("GameClear");
   }
 }

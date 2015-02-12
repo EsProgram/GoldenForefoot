@@ -252,7 +252,7 @@ namespace Es.Actor
     /// <summary>
     /// クリア後ダメージを喰らわなくする処理
     /// </summary>
-    public void Clear()
+    public void GameClear()
     {
       clearFlag = true;
     }
