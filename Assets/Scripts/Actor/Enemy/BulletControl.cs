@@ -12,36 +12,45 @@ public class BulletControl : MonoBehaviour
   [SerializeField, Range(0, 5), Tooltip("弾打ち間隔")]
   private float repeatRate = 1f;
 
-  private bool shotFlag = true;
   private EnemyControl enemyCtrl;
+  private float time;
+  private int currentIndex;
 
   public void Awake()
   {
     enemyCtrl = GetComponent<EnemyControl>();
   }
 
-  public void Update()
+  public void Start()
   {
-    if(shotFlag)
-    {
-      StartCoroutine(CreateBullet());
-      shotFlag = false;
-    }
+    time = 0;
+    currentIndex = 0;
   }
 
-  private IEnumerator CreateBullet()
+  public void Update()
   {
-    yield return new WaitForSeconds(initWaitTime);
-    for(int i = 0; i < bulletPrefab.Count; ++i)
+    time += Time.deltaTime;
+
+    if(currentIndex == 0)
     {
-      if(i != 0)
-        yield return new WaitForSeconds(repeatRate);
-      if(enemyCtrl.state == State.Play)
+      if(time > initWaitTime)
       {
-        BulletInstantiate(i);
+        BulletInstantiate(currentIndex++);
+        time = 0;
       }
     }
-    shotFlag = true;
+
+    if(currentIndex > 0)
+    {
+      if(time > repeatRate)
+      {
+        BulletInstantiate(currentIndex++);
+        time = 0;
+      }
+    }
+
+    if(currentIndex >= bulletPrefab.Count)
+      currentIndex = 0;
   }
 
   private void BulletInstantiate(int index)
