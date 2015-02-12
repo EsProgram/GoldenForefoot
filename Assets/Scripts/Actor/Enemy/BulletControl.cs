@@ -12,13 +12,11 @@ public class BulletControl : MonoBehaviour
   [SerializeField, Range(0, 5), Tooltip("弾打ち間隔")]
   private float repeatRate = 1f;
 
-  private EnemyControl enemyCtrl;
   private float time;
   private int currentIndex;
 
   public void Awake()
   {
-    enemyCtrl = GetComponent<EnemyControl>();
   }
 
   public void Start()

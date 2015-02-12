@@ -6,13 +6,22 @@ using UnityEngine;
 /// <summary>
 /// 円内のオブジェクトを停止させる
 /// </summary>
-public class Pose : MonoBehaviour
+public class Pause : MonoBehaviour
 {
+  /**************************************************
+   * field
+   **************************************************/
+
   [SerializeField]
   private float radius = 10f;
 
   private SpriteRenderer sprite;
-  private const string TagNameMine = "Pose";
+  private const string TagNameMine = "Pause";
+  private bool isPause;
+
+  /**************************************************
+   * method
+   **************************************************/
 
   public void Awake()
   {
@@ -22,13 +31,14 @@ public class Pose : MonoBehaviour
 
   public void Update()
   {
-    /**************************************************
-     * ためしにぽーず！！！！
-     **************************************************/
-    if(Input.GetKeyDown(KeyCode.M))
-      On();
-    if(Input.GetKeyUp(KeyCode.N))
-      Off();
+    if(Input.GetButtonDown("Pause"))
+    {
+      if(isPause)
+        Off();
+      else
+        On();
+      isPause = !isPause;
+    }
   }
 
   public void On()
