@@ -15,10 +15,6 @@ public class BulletControl : MonoBehaviour
   private float time;
   private int currentIndex;
 
-  public void Awake()
-  {
-  }
-
   public void Start()
   {
     time = 0;
@@ -29,16 +25,19 @@ public class BulletControl : MonoBehaviour
   {
     time += Time.deltaTime;
 
+    //インデックス0の弾を発射するとき
     if(currentIndex == 0)
     {
       if(time > initWaitTime)
       {
-        BulletInstantiate(currentIndex++);
+        if(gameObject.layer == LayerMask.NameToLayer("StopEnemy"))
+          BulletInstantiate(currentIndex++);
         time = 0;
       }
     }
 
-    if(currentIndex > 0)
+    //インデックス0以外の弾を発射するとき
+    else
     {
       if(time > repeatRate)
       {
@@ -47,10 +46,15 @@ public class BulletControl : MonoBehaviour
       }
     }
 
+    //全インデックスの弾を打ち終えた時
     if(currentIndex >= bulletPrefab.Count)
       currentIndex = 0;
   }
 
+  /// <summary>
+  /// 指定されたインデックスの弾をプレハブからインスタンス化する
+  /// </summary>
+  /// <param name="index">インデックス</param>
   private void BulletInstantiate(int index)
   {
     Instantiate(bulletPrefab[index], transform.position, Quaternion.identity);

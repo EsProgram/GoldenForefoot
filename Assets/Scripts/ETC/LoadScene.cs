@@ -14,6 +14,14 @@ public class LoadScene : MonoBehaviour
   }
 
   /// <summary>
+  /// 今呼び出されているシーンを再ロード
+  /// </summary>
+  public void CallMine()
+  {
+    Application.LoadLevel(Application.loadedLevel);
+  }
+
+  /// <summary>
   /// アプリケーションを終了
   /// </summary>
   public void QuitApplication()

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// 円内のオブジェクトを停止させる
@@ -16,6 +17,7 @@ public class Pause : MonoBehaviour
   private float radius = 10f;
 
   private SpriteRenderer sprite;
+  private Canvas canvas;
   private const string TagNameMine = "Pause";
   private bool isPause;
 
@@ -26,6 +28,7 @@ public class Pause : MonoBehaviour
   public void Awake()
   {
     sprite = GetComponent<SpriteRenderer>();
+    canvas = GetComponentInChildren<Canvas>();
     tag = TagNameMine;
   }
 
@@ -47,6 +50,7 @@ public class Pause : MonoBehaviour
 
     //ポーズ画像の表示
     sprite.enabled = true;
+    canvas.enabled = true;
 
     //自分以外の円内のコライダー取得
     var colls = Physics2D.OverlapCircleAll(transform.position, radius).Where(c => { return c.tag != TagNameMine; });
@@ -70,6 +74,7 @@ public class Pause : MonoBehaviour
 
     //ポーズ画像の非表示
     sprite.enabled = false;
+    canvas.enabled = false;
 
     //自分以外の円内のコライダー取得
     var colls = Physics2D.OverlapCircleAll(transform.position, radius).Where(c => { return c.tag != TagNameMine; });
