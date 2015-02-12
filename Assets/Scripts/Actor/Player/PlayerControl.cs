@@ -54,6 +54,7 @@ namespace Es.Actor
     private bool clearFlag;
 
     private const float MIN_ATTACK_GAGE = 0.5f;//攻撃に必要なゲージの最小値
+    private const float WIFF_CONSUME_GAGE = 0.3f;//空振りで消費するゲージ
 
     private Vector2 moveDir;//移動方向
 
@@ -68,6 +69,11 @@ namespace Es.Actor
     /**************************************************
      * method
      **************************************************/
+
+    public override void Awake()
+    {
+      base.Awake();
+    }
 
     public void Update()
     {
@@ -116,14 +122,18 @@ namespace Es.Actor
           break;
 
         case State.Attacked:
-          state = State.Play;
+          if(rigidbody2D.velocity.magnitude < Vector2.one.magnitude)
+            state = State.Play;
           break;
 
         case State.Dead:
+
+          //ゲームオーバーへ移行
           if(rigidbody2D.velocity.magnitude < Vector2.one.magnitude)
           {
             Instantiate(exprPrefab, transform.position, Quaternion.identity);
             GetComponentsInChildren<SpriteRenderer>().ToList().ForEach(s => { s.enabled = false; });
+            GetComponentsInChildren<Collider2D>().ToList().ForEach(s => { s.enabled = false; });
             Invoke("LoadGameOverScene", 3f);
             state = State.Idle;
           }
@@ -153,6 +163,8 @@ namespace Es.Actor
     /// <param name="which">どちらの手か</param>
     private void Attack(WhichHand which)
     {
+      audio.PlayOneShot(FindAudioWithName("パンチ"));
+
       #region コライダーの取得
       var colls = Physics2D.OverlapCircleAll(attackOrigin.position, attackRadius)
         .Where(c =>
@@ -166,6 +178,14 @@ namespace Es.Actor
         });
       #endregion コライダーの取得
 
+      #region 空振り
+      if(colls.Count() == 0)
+      {
+        Consume(which, WIFF_CONSUME_GAGE);
+        return;
+      }
+      #endregion 空振り
+
       #region ゲージの消費
       foreach(var coll in colls)
         Consume(which, coll.GetComponent<VillainBase>().GageConsume);
@@ -176,13 +196,10 @@ namespace Es.Actor
       AddForce(colls, exprDir, attackPower);
       #endregion コライダーの吹き飛ばし
 
-      #region コライダーのステート変更・ダメージ処理
+      #region コライダーのダメージ処理
       foreach(var coll in colls)
-      {
-        coll.GetComponent<ActorBase>().state = State.Attacked;
         coll.gameObject.SendMessage("Damaged");
-      }
-      #endregion コライダーのステート変更・ダメージ処理
+      #endregion コライダーのダメージ処理
     }
 
     /// <summary>
@@ -242,14 +259,22 @@ namespace Es.Actor
 
     protected override void Damaged()
     {
-      if(!clearFlag)
-        base.Damaged();
+      if(state == State.Play)
+      {
+        if(!clearFlag)
+          base.Damaged();
+        audio.PlayOneShot(FindAudioWithName("猫"));
+      }
     }
 
     protected override void ExprDamaged()
     {
-      if(!clearFlag)
-        base.ExprDamaged();
+      if(state == State.Play)
+      {
+        if(!clearFlag)
+          base.ExprDamaged();
+        audio.PlayOneShot(FindAudioWithName("猫"));
+      }
     }
 
     private void LoadGameOverScene()

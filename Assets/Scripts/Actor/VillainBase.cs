@@ -15,6 +15,8 @@ namespace Es.Actor
     private float exprRadius = 0.5f;
     [SerializeField, Range(0f, 3000f), Tooltip("爆破時の吹き飛ばしで周囲のオブジェクトに与える力")]
     private float exprPower = 999f;
+    [SerializeField, Tooltip("爆発で周囲にダメージを与えるかどうか")]
+    protected bool damageOnExpr = true;
 
     /**************************************************
      * property
@@ -35,24 +37,26 @@ namespace Es.Actor
     public virtual void OnCollisionEnter2D(Collision2D coll)
     {
       if(coll.gameObject.tag == "Player")
-        DeadOnExpr();
+        AddExprForce();
     }
 
-    /// <summary>
-    /// 画面からフェードアウトしたら破棄
-    /// </summary>
-    public void OnBecameInvisible()
-    {
-      Destroy(gameObject);
-    }
+    ///// <summary>
+    ///// 画面からフェードアウトしたら破棄
+    ///// </summary>
+    //public virtual void OnBecameInvisible()
+    //{
+    //  Destroy(gameObject);
+    //}
 
     /// <summary>
     /// 爆破時の処理
     /// 周囲のコライダーを取得して四散させ、ダメージを与える
     /// 取得するコライダーはActorBaseがアタッチされたもの
     /// </summary>
-    protected void AddExprForceAndDamage()
+    protected void AddExprForce()
     {
+      DebugExtension.DrawCircle(transform.position, exprRadius, Color.green, 1f);
+
       //周囲のコライダー取得
       var targets = Physics2D.OverlapCircleAll(transform.position, exprRadius)
         .Where(c =>
@@ -72,7 +76,8 @@ namespace Es.Actor
       foreach(var target in targets)
       {
         AddForce(target.col, target.direction, exprPower);
-        target.col.SendMessage("ExprDamaged");
+        if(damageOnExpr)
+          target.col.SendMessage("ExprDamaged");
       }
     }
 
@@ -90,9 +95,10 @@ namespace Es.Actor
     /// 死亡処理
     /// 周囲に力・ダメージを与える
     /// </summary>
+    /// <param name="giveDamage">ダメージを与えるかどうか</param>
     protected void DeadOnExpr()
     {
-      AddExprForceAndDamage();
+      AddExprForce();
       DeadOnSilent();
     }
   }

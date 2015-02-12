@@ -16,6 +16,7 @@ namespace Es.Actor
   /// <summary>
   /// ゲーム内アクターの基本となるクラス
   /// </summary>
+  [RequireComponent(typeof(Rigidbody2D), typeof(Animator), typeof(AudioSource))]
   public abstract class ActorBase : MonoBehaviour
   {
     /**************************************************
@@ -25,10 +26,12 @@ namespace Es.Actor
     private int hp = 1;
     [SerializeField, Tooltip("爆破時に使用するエフェクトプレハブ")]
     protected GameObject exprPrefab = null;
+    [SerializeField, Tooltip("キャラクターのもつ固有のSE")]
+    private List<AudioClip> clips = null;
+
     public State state = State.Play;
 
     protected Animator animator;
-
     protected bool exprDamageTrigger;//爆発によるダメージを受けた際にONになる
 
     private int maxHP;
@@ -102,8 +105,7 @@ namespace Es.Actor
     }
 
     /// <summary>
-    /// 爆発によるダメージを受けた時の動作
-    /// セットされるトリガーを使って各自で実装
+    /// 爆発によるダメージを受けた時にセットされる
     /// </summary>
     protected virtual void ExprDamaged()
     {
@@ -117,6 +119,16 @@ namespace Es.Actor
     private void ExprDamageTriggerReset()
     {
       exprDamageTrigger = false;
+    }
+
+    /// <summary>
+    /// クリップ名からクリップを取得
+    /// </summary>
+    /// <param name="name">クリップ名</param>
+    /// <returns></returns>
+    protected AudioClip FindAudioWithName(string name)
+    {
+      return clips.FirstOrDefault(c => { return c.name == name; });
     }
   }
 }

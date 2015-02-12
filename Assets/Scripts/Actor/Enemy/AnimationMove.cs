@@ -12,12 +12,11 @@ public class AnimationMove : MonoBehaviour
 
   [SerializeField, Tooltip("Awakeメソッドでアニメーションを変更する際のトリガー名")]
   private string setTriger = string.Empty;
-  [SerializeField, Range(0, 10)]
-  private float speed = 5f;
-  [SerializeField, Tooltip("Animationで変更し、移動方向を制御するための変数")]
-  private Vector2 direction = Vector2.zero;
+  [Range(0, 10)]
+  public float speed = 5f;
+  [Tooltip("Animationで変更し、移動方向を制御するための変数")]
+  public Vector2 direction = Vector2.zero;
 
-  private Animator animator;
   /**************************************************
    * method
    **************************************************/
@@ -26,16 +25,12 @@ public class AnimationMove : MonoBehaviour
   {
     if(setTriger != string.Empty)
     {
-      animator = GetComponent<Animator>();
       SetTrigger();
     }
   }
 
   private void Update()
   {
-    if(animator.GetCurrentAnimatorStateInfo(0).IsName("None"))
-      SetTrigger();
-
     transform.Translate(Time.deltaTime * direction.normalized * speed);
   }
 

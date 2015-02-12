@@ -7,22 +7,33 @@ using UnityEngine;
 /// </summary>
 public class DestroyWall : MonoBehaviour
 {
-  [SerializeField]
+  [SerializeField, Tooltip("HPが0の場合にのみ爆破")]
   private bool hpCheck = false;
+  [SerializeField, Tooltip("破壊する場合、爆発を起こすかどうかのフラグ")]
+  private bool exprFlag = true;
 
   /// <summary>
-  /// 接触者がPlayer以外のActor
-  /// かつHPが0の場合爆破
+  /// 接触者が敵
   /// </summary>
   public void OnCollisionEnter2D(Collision2D coll)
   {
     var villain = coll.gameObject.GetComponent<VillainBase>();
     if(villain != null)
     {
-      if(hpCheck && villain.HP < 1)
-        coll.gameObject.SendMessage("DeadOnSilent");
-      if(!hpCheck)
-        coll.gameObject.SendMessage("DeadOnSilent");
+      if(exprFlag)
+      {
+        if(hpCheck && villain.HP < 1)
+          coll.gameObject.SendMessage("DeadOnSilent");
+        if(!hpCheck)
+          coll.gameObject.SendMessage("DeadOnSilent");
+      }
+      else
+      {
+        if(hpCheck && villain.HP < 1)
+          Destroy(coll.gameObject);
+        if(!hpCheck)
+          Destroy(coll.gameObject);
+      }
     }
   }
 }

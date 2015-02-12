@@ -37,7 +37,9 @@ public class BulletControl : MonoBehaviour
       if(i != 0)
         yield return new WaitForSeconds(repeatRate);
       if(enemyCtrl.state == State.Play)
+      {
         BulletInstantiate(i);
+      }
     }
     shotFlag = true;
   }
