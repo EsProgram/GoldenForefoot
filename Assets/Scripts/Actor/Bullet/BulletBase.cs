@@ -4,6 +4,10 @@ using UnityEngine;
 
 namespace Es.Actor
 {
+  /// <summary>
+  /// Bulletの基本クラス
+  /// 派生クラスではMoveメソッドをオーバーライドするだけでいい
+  /// </summary>
   public abstract class BulletBase : VillainBase
   {
     /**************************************************

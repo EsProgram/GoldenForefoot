@@ -14,7 +14,7 @@ namespace Es.Actor
 
     //パンチされた際の物理的挙動が適用された後かどうか
     private bool timeFixFlagOnPanched = false;
-    private AnimationMove anim;
+    private AnimationMove animationMove;
 
     /**************************************************
      * method
@@ -23,7 +23,7 @@ namespace Es.Actor
     public override void Awake()
     {
       base.Awake();
-      anim = GetComponent<AnimationMove>();
+      animationMove = GetComponent<AnimationMove>();
     }
 
     public void Update()
@@ -35,20 +35,6 @@ namespace Es.Actor
           //HPが0になったら爆発
           if(HP <= 0)
             state = State.Dead;
-
-          //レイヤーがStopEnemyじゃないものは速度を一定にする
-          if(gameObject.layer != LayerMask.NameToLayer("StopEnemy"))
-          {
-            //rigidbody2D.velocity = -Vector2.right * anim.speed;
-            //加えている力を相殺
-            rigidbody2D.AddForce(-anim.direction * anim.speed);
-
-            //速度が遅すぎる場合(または逆移動の場合)は加速
-            var speed = Mathf.Max(anim.speed, 1f);
-
-            //一定速度での移動
-            transform.Translate(-Vector2.right * Time.deltaTime * speed);
-          }
 
           break;
 
@@ -74,7 +60,8 @@ namespace Es.Actor
               timeFixFlagOnPanched = false;
             }
 
-            animator.SetTrigger("Damaged");
+            //animator.SetTrigger("Damaged");
+            animationMove.SetTrigger("Damaged");
           }
 
           break;
@@ -92,7 +79,7 @@ namespace Es.Actor
 
     public void FixedUpdate()
     {
-      // 物理パラメータ(velocity等)を参照するUpdateとのズレを考慮し、フラグを変更する
+      //物理パラメータ(velocity等)を参照するUpdateとのズレを考慮し、フラグを変更する
       if(state == State.Attacked)
         timeFixFlagOnPanched = true;
     }
@@ -109,7 +96,7 @@ namespace Es.Actor
           other.SendMessage("Damaged");
       }
 
-      // HP0,パンチされた状態で他の何かにぶつかったら、velocityをゼロに設定する
+      //HP0,パンチされた状態で他の何かにぶつかったら、velocityをゼロに設定する
       if(HP <= 0 && state == State.Attacked)
         rigidbody2D.velocity = Vector2.zero;
     }

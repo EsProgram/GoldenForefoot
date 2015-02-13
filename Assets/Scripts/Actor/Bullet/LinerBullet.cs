@@ -9,19 +9,12 @@ namespace Es.Actor
   public class LinerBullet : BulletBase
   {
     /**************************************************
-     * field
-     **************************************************/
-
-    [SerializeField]
-    private Vector2 dir = new Vector2(-1, 0);
-
-    /**************************************************
      * method
      **************************************************/
 
     protected override void Move()
     {
-      transform.Translate(dir * speed * Time.deltaTime);
+      transform.Translate(-Vector2.right * speed * Time.deltaTime);
     }
   }
 }

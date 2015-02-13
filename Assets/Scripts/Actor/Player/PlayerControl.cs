@@ -34,7 +34,7 @@ namespace Es.Actor
     [SerializeField, Range(0, 10)]
     private float moveSpeed = 5f;
     [SerializeField, Range(0, 1)]
-    private float slowSpeedRate = 0.5f;
+    private float slowSpeedRate = 0.3f;
     [SerializeField, Range(0, 999)]
     private float attackPower = 999f;
     [SerializeField, Range(0, 10)]
@@ -107,9 +107,15 @@ namespace Es.Actor
 
           DebugExtension.DrawCircle(attackOrigin.position, attackRadius, Color.green);
           if(leftHandAttackInput && leftGage > MIN_ATTACK_GAGE)
+          {
+            animator.SetTrigger("LeftAttack");
             Attack(WhichHand.Left);
+          }
           if(rightHandAttackInput && rightGage > MIN_ATTACK_GAGE)
+          {
+            animator.SetTrigger("RightAttack");
             Attack(WhichHand.Right);
+          }
           #endregion 攻撃
 
           //ゲージUP
@@ -143,6 +149,12 @@ namespace Es.Actor
           state = State.Play;
           break;
       }
+    }
+
+    public void OnCollisionEnter2D(Collision2D coll)
+    {
+      if(coll.gameObject.tag == "Enemy")
+        audio.PlayOneShot(FindAudioWithName("接触"));
     }
 
     /// <summary>

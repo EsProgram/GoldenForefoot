@@ -19,7 +19,7 @@ public class Pause : MonoBehaviour
   private SpriteRenderer sprite;
   private Canvas canvas;
   private const string TagNameMine = "Pause";
-  private bool isPause;
+  private bool pauseSwitch;
 
   /**************************************************
    * method
@@ -36,22 +36,45 @@ public class Pause : MonoBehaviour
   {
     if(Input.GetButtonDown("Pause"))
     {
-      if(isPause)
-        Off();
+      audio.Play();
+      if(pauseSwitch)
+        OFF();
       else
-        On();
-      isPause = !isPause;
+        ON();
+      pauseSwitch = !pauseSwitch;
     }
   }
 
-  public void On()
+  public void ON()
   {
     DebugExtension.DrawCircle(transform.position, radius, Color.red, 3f);
+    PauseScreen(true);
+    SwitchBehaviour(true);
+  }
 
-    //ポーズ画像の表示
-    sprite.enabled = true;
-    canvas.enabled = true;
+  public void OFF()
+  {
+    DebugExtension.DrawCircle(transform.position, radius, Color.red, 3f);
+    PauseScreen(false);
+    SwitchBehaviour(false);
+  }
 
+  /// <summary>
+  /// ポーズようのスクリーンをセットする
+  /// </summary>
+  /// <param name="set">trueでポーズ用スクリーンに</param>
+  private void PauseScreen(bool set)
+  {
+    sprite.enabled = set;
+    canvas.enabled = set;
+  }
+
+  /// <summary>
+  /// オブジェクトとして振る舞うかどうか
+  /// </summary>
+  /// <param name="sw">trueで振る舞うようにする</param>
+  private void SwitchBehaviour(bool sw)
+  {
     //自分以外の円内のコライダー取得
     var colls = Physics2D.OverlapCircleAll(transform.position, radius).Where(c => { return c.tag != TagNameMine; });
     foreach(var coll in colls)
@@ -60,35 +83,19 @@ public class Pause : MonoBehaviour
       var spesifyComponents = coll.gameObject.GetComponentsInChildren<Behaviour>()
         .Where(component => { return !(component is Collider2D); });
 
-      //停止
+      //開始
       foreach(var sc in spesifyComponents)
-      {
-        sc.enabled = false;
-      }
+        sc.enabled = !sw;
     }
   }
 
-  public void Off()
+  private void BehaviourON()
   {
-    DebugExtension.DrawCircle(transform.position, radius, Color.red, 3f);
+    SwitchBehaviour(true);
+  }
 
-    //ポーズ画像の非表示
-    sprite.enabled = false;
-    canvas.enabled = false;
-
-    //自分以外の円内のコライダー取得
-    var colls = Physics2D.OverlapCircleAll(transform.position, radius).Where(c => { return c.tag != TagNameMine; });
-    foreach(var coll in colls)
-    {
-      //取得したコライダーを持つゲームオブジェクトのコライダー2D以外全部取得
-      var spesifyComponents = coll.gameObject.GetComponentsInChildren<Behaviour>()
-        .Where(component => { return !(component is Collider2D); });
-
-      //停止
-      foreach(var sc in spesifyComponents)
-      {
-        sc.enabled = true;
-      }
-    }
+  private void BehaviourOFF()
+  {
+    SwitchBehaviour(false);
   }
 }

@@ -40,14 +40,6 @@ namespace Es.Actor
         AddExprForce();
     }
 
-    ///// <summary>
-    ///// 画面からフェードアウトしたら破棄
-    ///// </summary>
-    //public virtual void OnBecameInvisible()
-    //{
-    //  Destroy(gameObject);
-    //}
-
     /// <summary>
     /// 爆破時の処理
     /// 周囲のコライダーを取得して四散させ、ダメージを与える
@@ -76,8 +68,7 @@ namespace Es.Actor
       foreach(var target in targets)
       {
         AddForce(target.col, target.direction, exprPower);
-        if(damageOnExpr)
-          target.col.SendMessage("ExprDamaged");
+        target.col.SendMessage("ExprDamaged");
       }
     }
 
@@ -94,11 +85,12 @@ namespace Es.Actor
     /// <summary>
     /// 死亡処理
     /// 周囲に力・ダメージを与える
+    /// damageOnExprがfalseの場合、周囲に力及びダメージは与えない
     /// </summary>
-    /// <param name="giveDamage">ダメージを与えるかどうか</param>
     protected void DeadOnExpr()
     {
-      AddExprForce();
+      if(damageOnExpr)
+        AddExprForce();
       DeadOnSilent();
     }
   }

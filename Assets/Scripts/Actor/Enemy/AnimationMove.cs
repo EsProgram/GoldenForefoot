@@ -23,10 +23,7 @@ public class AnimationMove : MonoBehaviour
 
   private void Awake()
   {
-    if(setTriger != string.Empty)
-    {
-      SetTrigger();
-    }
+    SetTrigger();
   }
 
   private void Update()
@@ -34,13 +31,16 @@ public class AnimationMove : MonoBehaviour
     transform.Translate(Time.deltaTime * direction.normalized * speed);
   }
 
-  private void SetTrigger(string triggerName)
+  public void SetTrigger(string triggerName)
   {
     GetComponent<Animator>().SetTrigger(triggerName);
+    if(triggerName == "Damaged")
+      Invoke("SetTrigger", 2f);
   }
 
   private void SetTrigger()
   {
-    SetTrigger(setTriger);
+    if(setTriger != string.Empty)
+      SetTrigger(setTriger);
   }
 }

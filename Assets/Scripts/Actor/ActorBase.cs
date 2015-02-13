@@ -110,10 +110,10 @@ namespace Es.Actor
     protected virtual void ExprDamaged()
     {
       exprDamageTrigger = true;
+      Invoke("ExprDamageTriggerReset", 0.1f);
       state = State.Attacked;
       HP -= EXPR_DAMAGE;
       animator.SetTrigger("Damaged");
-      Invoke("ExprDamageTriggerReset", 0.1f);
     }
 
     private void ExprDamageTriggerReset()

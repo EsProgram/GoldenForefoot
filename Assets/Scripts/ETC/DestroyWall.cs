@@ -22,14 +22,14 @@ public class DestroyWall : MonoBehaviour
     {
       if(exprFlag)
       {
-        if(hpCheck && villain.HP < 1)
+        if(hpCheck && villain.HP <= 0)
           coll.gameObject.SendMessage("DeadOnSilent");
         if(!hpCheck)
           coll.gameObject.SendMessage("DeadOnSilent");
       }
       else
       {
-        if(hpCheck && villain.HP < 1)
+        if(hpCheck && villain.HP <= 0)
           Destroy(coll.gameObject);
         if(!hpCheck)
           Destroy(coll.gameObject);
