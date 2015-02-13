@@ -46,20 +46,23 @@ public class PhaseControl : MonoBehaviour
       SetTrigger();
   }
 
-  public void OnGUI()
-  {
-    if(GUILayout.Button("次のフェーズ"))
-      SetTrigger();
-    GUILayout.Label("現在のフェーズ:" + currentInstantiateIndex.ToString());
-    if(currentInstantiateIndex >= phasePrefabs.Count)
-      GUILayout.Label("これ以上のフェーズは存在しません");
-    if(GUILayout.Button("HP全回復"))
-      GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerControl>().Heal(9999);
-    if(GUILayout.Button("タイトルへ戻る"))
-      Application.LoadLevel("Title");
-    if(GUILayout.Button("クリア画面に進む"))
-      Application.LoadLevel("GameClear");
-  }
+  ///// <summary>
+  ///// デバッグ用機能
+  ///// </summary>
+  //public void OnGUI()
+  //{
+  //  if(GUILayout.Button("HP全回復"))
+  //    GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerControl>().Heal(9999);
+  //  if(GUILayout.Button("タイトルへ戻る"))
+  //    Application.LoadLevel("Title");
+  //  if(GUILayout.Button("クリア画面に進む"))
+  //    Application.LoadLevel("GameClear");
+  //  if(GUILayout.Button("次のフェーズ"))
+  //    SetTrigger();
+  //  GUILayout.Label("現在のフェーズ:" + currentInstantiateIndex.ToString());
+  //  if(currentInstantiateIndex >= phasePrefabs.Count)
+  //    GUILayout.Label("これ以上のフェーズは存在しません");
+  //}
 
   /// <summary>
   /// 次のフェーズを開始するトリガーをセットする

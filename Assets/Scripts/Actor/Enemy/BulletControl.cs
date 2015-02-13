@@ -12,8 +12,14 @@ public class BulletControl : MonoBehaviour
   [SerializeField, Range(0, 5), Tooltip("弾打ち間隔")]
   private float repeatRate = 1f;
 
+  private EnemyControl ctrl;
   private float time;
   private int currentIndex;
+
+  public void Awake()
+  {
+    ctrl = GetComponent<EnemyControl>();
+  }
 
   public void Start()
   {
@@ -57,6 +63,7 @@ public class BulletControl : MonoBehaviour
   /// <param name="index">インデックス</param>
   private void BulletInstantiate(int index)
   {
-    Instantiate(bulletPrefab[index], transform.position, Quaternion.identity);
+    if(ctrl.state == State.Play)
+      Instantiate(bulletPrefab[index], transform.position, Quaternion.identity);
   }
 }
