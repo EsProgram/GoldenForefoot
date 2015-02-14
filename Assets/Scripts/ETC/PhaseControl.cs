@@ -17,33 +17,43 @@ public class PhaseControl : MonoBehaviour
   private bool nextTrigger = false;
   private int currentInstantiateIndex = 0;
   private GameObject currentPhase;
+  private Pause pause;
   private bool calledlear;
 
   /**************************************************
    * method
    **************************************************/
 
+  public void Awake()
+  {
+    pause = GameObject.FindGameObjectWithTag("Pause").GetComponent<Pause>();
+  }
+
   private void Update()
   {
-    //Phaseをインスタンス化
-    if(nextTrigger)
+    //ポーズ状態でなければ
+    if(!pause.IsPose())
     {
-      nextTrigger = false;
-      if(currentInstantiateIndex < phasePrefabs.Count)
+      //Phaseをインスタンス化
+      if(nextTrigger)
       {
-        currentPhase = Instantiate(phasePrefabs[currentInstantiateIndex]) as GameObject;
-        ++currentInstantiateIndex;
+        nextTrigger = false;
+        if(currentInstantiateIndex < phasePrefabs.Count)
+        {
+          currentPhase = Instantiate(phasePrefabs[currentInstantiateIndex]) as GameObject;
+          ++currentInstantiateIndex;
+        }
       }
+
+      //全てのフェーズを完了した時に呼び出される(クリア処理)
+      if(currentPhase == null && currentInstantiateIndex == phasePrefabs.Count)
+        if(GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerControl>().HP > 0)
+          GameClear();
+
+      //現在実行されているPhaseがなければトリガーをOnにする
+      if(currentPhase == null)
+        SetTrigger();
     }
-
-    //全てのフェーズを完了した時に呼び出される(クリア処理)
-    if(currentPhase == null && currentInstantiateIndex == phasePrefabs.Count)
-      if(GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerControl>().HP > 0)
-        GameClear();
-
-    //現在実行されているPhaseがなければトリガーをOnにする
-    if(currentPhase == null)
-      SetTrigger();
   }
 
   ///// <summary>

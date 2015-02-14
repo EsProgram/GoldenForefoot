@@ -20,6 +20,7 @@ public class Pause : MonoBehaviour
   private Canvas canvas;
   private const string TagNameMine = "Pause";
   private bool pauseSwitch;
+  private bool isPose;
 
   /**************************************************
    * method
@@ -41,12 +42,14 @@ public class Pause : MonoBehaviour
         OFF();
       else
         ON();
+
       pauseSwitch = !pauseSwitch;
     }
   }
 
   public void ON()
   {
+    isPose = true;
     DebugExtension.DrawCircle(transform.position, radius, Color.red, 3f);
     PauseScreen(true);
     SwitchBehaviour(true);
@@ -54,6 +57,7 @@ public class Pause : MonoBehaviour
 
   public void OFF()
   {
+    isPose = false;
     DebugExtension.DrawCircle(transform.position, radius, Color.red, 3f);
     PauseScreen(false);
     SwitchBehaviour(false);
@@ -97,5 +101,13 @@ public class Pause : MonoBehaviour
   private void BehaviourOFF()
   {
     SwitchBehaviour(false);
+  }
+
+  /// <summary>
+  /// ポーズしているかどうかを返す
+  /// </summary>
+  public bool IsPose()
+  {
+    return isPose;
   }
 }
