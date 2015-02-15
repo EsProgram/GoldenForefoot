@@ -27,14 +27,12 @@ namespace Es.Actor
 
     [SerializeField, Tooltip("攻撃範囲(円)の原点(中心座標)になる")]
     private Transform attackOrigin = null;
-    [SerializeField, Tooltip("攻撃方向補助矢印の原点(中心座標)になる")]
-    private Transform arrowOrigin = null;
     [SerializeField, Tooltip("吹き飛ばし方向を決定するためのヘルパー")]
     private Transform dirHelper = null;
     [SerializeField, Range(0, 10)]
     private float moveSpeed = 5f;
     [SerializeField, Range(0, 1)]
-    private float slowSpeedRate = 0.3f;
+    private float slowSpeedRate = 1f;
     [SerializeField, Range(0, 999)]
     private float attackPower = 999f;
     [SerializeField, Range(0, 10)]
@@ -46,17 +44,20 @@ namespace Es.Actor
     private float verticalInput;
     private bool leftHandAttackInput;//"左手"での攻撃
     private bool rightHandAttackInput;//"右手"での攻撃
-    private bool slowSpeedInput;//低速移動
-    private bool slowTrriger;//ボタンを押す度低速とノーマル入れ替え
-
+    private bool lockOnInput;//ターゲットのロックオン
     private float leftGage;
     private float rightGage;
     private bool clearFlag;
 
-    private const float MIN_ATTACK_GAGE = 0.5f;//攻撃に必要なゲージの最小値
+    private const float MIN_ATTACK_GAGE = 0.3f;//攻撃に必要なゲージの最小値
     private const float WIFF_CONSUME_GAGE = 0.3f;//空振りで消費するゲージ
 
     private Vector2 moveDir;//移動方向
+    private GameObject lockOnEnemy;//ロックオンしたエネミーを保持しておく
+    private Transform defaultDirHelper;//dirHelperがデフォルトで持つTranslate情報
+    private MouseCursor cursor;//マウスカーソル(ロックオンで色を変更)
+    private Transform target;//照準が持つTransform
+    private SpriteRenderer targetSprite;//照準が持つスプライト
 
     /**************************************************
      * property
@@ -65,6 +66,11 @@ namespace Es.Actor
     public float LeftGage { get { return leftGage; } }
     public float RightGage { get { return rightGage; } }
     public float MinAttackGage { get { return MIN_ATTACK_GAGE; } }
+    private float SlowSpeed
+    {
+      get { return slowSpeedRate; }
+      set { slowSpeedRate = Mathf.Min(Mathf.Max(value, 0), 1); }
+    }
 
     /**************************************************
      * method
@@ -72,7 +78,17 @@ namespace Es.Actor
 
     public override void Awake()
     {
+      cursor = GameObject.FindGameObjectWithTag("Cursor").GetComponent<MouseCursor>();
+      target = GameObject.FindGameObjectWithTag("Target").transform;
+      targetSprite = target.GetComponent<SpriteRenderer>();
       base.Awake();
+    }
+
+    public override void Start()
+    {
+      defaultDirHelper = dirHelper.transform;
+      targetSprite.enabled = false;
+      base.Start();
     }
 
     public void Update()
@@ -92,16 +108,38 @@ namespace Es.Actor
           moveDir = new Vector2(horizontalInput, verticalInput);
           if(moveDir.magnitude > 1f)
             moveDir = moveDir.normalized;
-          if(slowSpeedInput)
-            slowTrriger = !slowTrriger;
-          if(slowTrriger)
-            moveDir *= slowSpeedRate;
-          transform.Translate(Time.deltaTime * moveDir * moveSpeed, Space.World);
+
+          transform.Translate(Time.deltaTime * moveDir * moveSpeed * SlowSpeed, Space.World);
 
           var arrowDir = Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position;
           var angle = Mathf.Atan2(arrowDir.y, arrowDir.x) * Mathf.Rad2Deg;
-          arrowOrigin.transform.eulerAngles = new Vector3(0f, 0f, angle);
+          attackOrigin.transform.eulerAngles = new Vector3(0f, 0f, angle);
           #endregion 移動
+
+          #region ロックオン
+
+          //ロックオンボタンでロックオンする敵を更新
+          if(lockOnInput)
+            lockOnEnemy = LockOn();
+
+          //敵がいなかったら元に戻す
+          if(lockOnEnemy == null)
+          {
+            dirHelper.position = defaultDirHelper.position;
+            cursor.SetNormalColor();
+            targetSprite.enabled = false;
+          }
+
+          //敵がいたらそこにロックオン設定する
+          else
+          {
+            dirHelper.position = lockOnEnemy.transform.position;
+            cursor.SetLockOnColor();
+            target.position = lockOnEnemy.transform.position;
+            targetSprite.enabled = true;
+          }
+
+          #endregion ロックオン
 
           #region 攻撃
 
@@ -166,7 +204,21 @@ namespace Es.Actor
       verticalInput = Input.GetAxis("Vertical");
       leftHandAttackInput = Input.GetButtonDown("Fire1");
       rightHandAttackInput = Input.GetButtonDown("Fire2");
-      slowSpeedInput = Input.GetButtonDown("Fire3");
+      SlowSpeed += Input.GetAxis("Mouse ScrollWheel");
+
+      lockOnInput = Input.GetButtonDown("Fire3");
+    }
+
+    /// <summary>
+    /// ロックオンキー入力時にマウス座標に存在する
+    /// Enemyタグをもつオブジェクトを取得する
+    /// 取得できなかった場合Null
+    /// </summary>
+    private GameObject LockOn()
+    {
+      var lockon = Physics2D.OverlapPointAll(Camera.main.ScreenToWorldPoint(Input.mousePosition))
+        .FirstOrDefault(coll => { return coll.tag == "Enemy"; });
+      return lockon == null ? null : lockon.gameObject;
     }
 
     /// <summary>
@@ -176,19 +228,7 @@ namespace Es.Actor
     private void Attack(WhichHand which)
     {
       audio.PlayOneShot(FindAudioWithName("パンチ"));
-
-      #region コライダーの取得
-      var colls = Physics2D.OverlapCircleAll(attackOrigin.position, attackRadius)
-        .Where(c =>
-        {
-          var villain = c.GetComponent<VillainBase>();
-          if(villain == null)
-            return false;
-
-          return villain.tag != "Player" &&
-                 villain.HP > 0;
-        });
-      #endregion コライダーの取得
+      var colls = FindVillainCollider2D();
 
       #region 空振り
       if(colls.Count() == 0)
@@ -204,7 +244,7 @@ namespace Es.Actor
       #endregion ゲージの消費
 
       #region コライダーの吹き飛ばし
-      var exprDir = dirHelper.position - arrowOrigin.position;
+      var exprDir = dirHelper.position - attackOrigin.position;
       AddForce(colls, exprDir, attackPower);
       #endregion コライダーの吹き飛ばし
 
@@ -212,6 +252,22 @@ namespace Es.Actor
       foreach(var coll in colls)
         coll.gameObject.SendMessage("Damaged");
       #endregion コライダーのダメージ処理
+    }
+
+    /// <summary>
+    /// 攻撃範囲内のVillainBaseを継承したアクターを取得する
+    /// </summary>
+    private IEnumerable<Collider2D> FindVillainCollider2D()
+    {
+      return Physics2D.OverlapCircleAll(attackOrigin.position, attackRadius)
+              .Where(c =>
+              {
+                var villain = c.GetComponent<VillainBase>();
+                if(villain == null)
+                  return false;
+
+                return villain.HP > 0;
+              });
     }
 
     /// <summary>

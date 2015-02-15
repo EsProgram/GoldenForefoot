@@ -228,3 +228,9 @@ sysinfo.txt
 *.ttf
 *.mp3
 *.mat
+/Assets/Fonts/PixelMplus-20130602/mplus_bitmap_fonts/LICENSE_E
+/Assets/Fonts/PixelMplus-20130602/mplus_bitmap_fonts/README_J
+/Assets/Fonts/PixelMplus-20130602/mplus_bitmap_fonts/LICENSE_J
+/Assets/Fonts/PixelMplus-20130602/mplus_bitmap_fonts/README_E
+/Assets/Fonts/PixelMplus-20130602/README.txt
+/Assets/Editor/AllowJapaneseInUnity.cs
